@@ -8,6 +8,7 @@ use bb8_postgres::{
     },
     PostgresConnectionManager,
 };
+use chrono::{DateTime, FixedOffset};
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -33,7 +34,7 @@ pub struct Change {
 #[derive(Debug, Serialize)]
 pub struct Event {
     pub id: i64,
-    pub created_at: String,
+    pub created_at: DateTime<FixedOffset>,
     pub aggregate_type: String,
     pub aggregate_id: String,
     pub sequence: i64,
@@ -58,7 +59,8 @@ impl TryFrom<Vec<Value>> for Event {
 
         Ok(Event {
             id: get_value!(values, 0, as_i64),
-            created_at: get_value!(values, 1, as_str).to_string(),
+            created_at: DateTime::parse_from_str(get_value!(values, 1, as_str), "%F %T.%f%#z")
+                .map_err(|_| 1)?,
             aggregate_type: get_value!(values, 2, as_str).to_string(),
             aggregate_id: get_value!(values, 3, as_str).to_string(),
             sequence: get_value!(values, 4, as_i64),

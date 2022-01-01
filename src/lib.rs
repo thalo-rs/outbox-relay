@@ -68,7 +68,7 @@ where
                         r#"
                         SELECT
                             "event"."id",
-                            "event"."created_at"::TEXT,
+                            "event"."created_at",
                             "event"."aggregate_type",
                             "event"."aggregate_id",
                             "event"."sequence",
@@ -184,7 +184,8 @@ where
                     let producer = producer.clone(); // Fields are wrapped in Arc
                     let pool = pool.clone(); // Fields are wrapped in Arc
                     tokio::spawn(async move {
-                        let event: Event = change.columnvalues.unwrap().try_into().unwrap();
+                        let event: Event =
+                            change.columnvalues.unwrap_or_default().try_into().unwrap();
 
                         if let Err(err) = handle_event(event, producer, pool).await {
                             error!(?err, "error handling event");
