@@ -1,6 +1,7 @@
 pre_bump_hooks = [
   "cargo bump {{version}}",
-  "docker build --pull --rm -t acidic9/outbox-relay:{{version}} .",
+  "docker build -t acidic9/outbox-relay:{{version}} .",
+  "docker image tag acidic9/outbox-relay:{{version}} acidic9/outbox-relay:latest",
   "docker image push acidic9/outbox-relay:{{version}}",
 ]
 post_bump_hooks = []
